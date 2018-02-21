@@ -4,12 +4,6 @@ import os
 import subprocess
 import time
 
-#constantly extend the 'lease' of the instance...
-
-def describe (instance_id):
-    sh('aws ec2 describe-instances --instance-id ' + instance_id)
-
-
 def find_instance_id(spot_instance_request_id):
     instance = None
     while not instance:
@@ -28,7 +22,8 @@ def describe_instance(instance_id):
     result = json.loads(result)
     return result
 
-def keep_alive
+def restart_instance(instance_id):
+    subprocess.check_output([])
 
 def launch (ami="ami-52261e32", instance_type="g2.2xlarge"):
     instance_spec = {
@@ -43,7 +38,7 @@ def launch (ami="ami-52261e32", instance_type="g2.2xlarge"):
     with tempfile.NamedTemporaryFile() as f:
         f.write(json.dumps(instance_spec).encode('utf-8'))
         f.flush()
-        result = subprocess.check_output(['aws', 'ec2', 'request-spot-instances', '--instance-count', '1', '--spot-price', '0.5', '--launch-specification', 'file://' + os.path.join(tempfile.gettempdir(), f.name), '--type', 'one-time'])
+        result = subprocess.check_output(['aws', 'ec2', 'request-spot-instances', '--instance-count', '1', '--spot-price', '0.35', '--launch-specification', 'file://' + os.path.join(tempfile.gettempdir(), f.name), '--type', 'one-time'])
         result = result.decode('utf-8')
         result = json.loads(result)
         request_id = result['SpotInstanceRequests'][0]['SpotInstanceRequestId']
@@ -51,4 +46,4 @@ def launch (ami="ami-52261e32", instance_type="g2.2xlarge"):
         instance_id = find_instance_id(request_id)
         print('found instance id', instance_id)
 
-# launch()
+launch()
