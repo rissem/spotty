@@ -10,8 +10,6 @@ def find_instance_id(spot_instance_request_id):
         result = subprocess.check_output(['aws', 'ec2', 'describe-spot-instance-requests', '--spot-instance-request-ids', spot_instance_request_id])
         result = result.decode('utf-8')
         result = json.loads(result)
-        print("RESULT", result)
-        print("RESULT", result['SpotInstanceRequests'][0]['Status']['Code'])
         if result['SpotInstanceRequests'][0]['Status']['Code'] == 'fulfilled':
             return result['SpotInstanceRequests'][0]['InstanceId']
         time.sleep(0.5)
@@ -25,14 +23,15 @@ def describe_instance(instance_id):
 def restart_instance(instance_id):
     subprocess.check_output([])
 
-def launch (ami="ami-52261e32", instance_type="g2.2xlarge"):
+def launch (ami="ami-c27af5ba", instance_type="g2.2xlarge"):
     instance_spec = {
         'ImageId': ami,
-        'KeyName': 'my_aws_key',
-        'SecurityGroupIds': ['sg-32aadc76'],
+        'KeyName': 'deep-oregon',
+        'SecurityGroupIds': ['sg-54b0802b'],
         'InstanceType': instance_type,
+        'SubnetId':'subnet-29845850',
         'Placement': {
-            'AvailabilityZone': 'us-west-1b'
+            'AvailabilityZone': 'us-west-2a'
         }
     }
     with tempfile.NamedTemporaryFile() as f:
