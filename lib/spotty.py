@@ -20,8 +20,9 @@ def describe_instance(instance_id):
     result = json.loads(result)
     return result
 
-def restart_instance(instance_id):
-    subprocess.check_output([])
+def run_command(instance_id, cmd):
+    ip = describe_instance(instance_id)['Reservations'][0]['Instances'][0]['PublicIpAddress']
+    return subprocess.check_output(['ssh', '-o', 'StrictHostKeyChecking=no', '-i', '/home/ubuntu/.aws/deep-oregon.pem', 'ubuntu@' + ip] + cmd).decode("utf-8")
 
 def launch (ami="ami-c27af5ba", instance_type="g2.2xlarge"):
     instance_spec = {
@@ -44,5 +45,11 @@ def launch (ami="ami-c27af5ba", instance_type="g2.2xlarge"):
         # terminate spot instance unless it's kept alive...
         instance_id = find_instance_id(request_id)
         print('found instance id', instance_id)
+        device = 'dev/xvdf'
+        mount_point = '/data'
+        result = subprocess.check_output(['aws', 'ec2', 'attach-volume', '--volume-id', 'vol-023fe5bce0bc42fe3', '--instance-id', instance_id, "--device", device])
+        run_command(instance_id, ['sudo', 'mkdir', mount_point])
+        run_command(instance_id, ['sudo', 'mount', device, mount_point])
+        print("RESULT", result)
 
-launch()
+
